@@ -7,20 +7,31 @@ require_once 'Request.php';
 require_once 'Response.php';
 require_once 'Collection.php';
 require_once 'Base.php';
+require_once 'Milestone.php';
 require_once 'Project.php';
 require_once 'Ticket.php';
 
 class Client
 {
 
-    protected $token;
-    protected $baseUrl;
-    protected $request;
+    protected $_token;
+    protected $_baseUrl;
+    protected $_request;
+
+    /**
+     * Track calls to the API. Great for testing
+     */
+    public $apiCalls = 0;
+
+    /**
+     * Number of tickets to retrieve per page
+     */
+    protected $_limit = 30;
 
     public function __construct($realm, $apiToken)
     {
-        $this->token = ($apiToken);
-        $this->baseUrl = "http://" . $realm . ".lighthouseapp.com";
+        $this->_token = ($apiToken);
+        $this->_baseUrl = "http://" . $realm . ".lighthouseapp.com";
     }
 
     /**
@@ -31,16 +42,23 @@ class Client
         return new \Lighthouse\Project($this, $id);
     }
 
-    public function sendRequest($method, $url, $query = null)
+    public function setLimit($int)
     {
-        $url = $this->baseUrl . '/' . $url;
-        if($query) {
-            $url .= '?q=' . urlencode($query);
-        }
-        $this->request = new \Lighthouse\Request($this->token);
-        return $this->request->send($url);
+        $this->_limit = $int;
     }
 
+    public function sendRequest($method, $url, $query = null)
+    {
+        $url = $this->_baseUrl . '/' . $url;
+        $qString['limit'] = $this->_limit;
+        if ($query) {
+            $qString['q'] = $query;
+        }
+        $url .= '?' . http_build_query($qString);
+        $this->_request = new \Lighthouse\Request($this->_token);
+        ++$this->apiCalls;
+        return $this->_request->send($url);
+    }
 
     public function search($query)
     {

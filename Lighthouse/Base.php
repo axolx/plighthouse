@@ -28,13 +28,16 @@ class Base
 
     public function __get($name)
     {
+        $method = 'get' . ucfirst($name);
+        if (method_exists($this, $method)) {
+            return $this->$method();
+        }
         if ($this->_data === null) {
             $this->init();
         }
         if (isset($this->_data[$name])) {
             return (string) $this->_data[$name];
-        }
-        else {
+        } else {
             throw new Exception('Accessing undefined property ' . $name);
         }
     }

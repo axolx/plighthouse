@@ -10,8 +10,13 @@ class Collection implements \ArrayAccess, \Countable
     protected $_data;
 
     /**
-     * Collection time: Project, Ticket, etc
-     * Must match an existing class, such as Lighthouse\Ticket
+     * Collection item class. Must match an existing class, such as
+     * Lighthouse\Ticket
+     */
+    protected $_typeClass;
+
+    /**
+     * Collection item e.g. project, ticket, milestone
      */
     protected $_type;
 
@@ -21,12 +26,12 @@ class Collection implements \ArrayAccess, \Countable
     public function __construct(Client $client, Response $response)
     {
         $key = key($response->parsedOutput);
-        $class = '\Lighthouse\\' . ucfirst(rtrim($key, 's'));
-        if (!class_exists($class)) {
-            throw new Exception("Couldn't find class $class");
+        $this->_type = rtrim($key, 's');
+        $this->_typeClass = '\Lighthouse\\' . ucfirst($this->_type);
+        if (!class_exists($this->_typeClass)) {
+            throw new Exception("Couldn't find class " . $this->_typeClass);
         };
         $this->_client = $client;
-        $this->_type = $class;
         $this->_data = $response->parsedOutput[$key];
     }
 
@@ -52,12 +57,12 @@ class Collection implements \ArrayAccess, \Countable
         if (isset($this->_items[$offset])) {
             return $this->_items[$offset];
         } elseif (isset($this->_data[$offset])) {
-            $class = $this->_type;
-            $data = $this->_data[$offset]['ticket'];
+            $class = $this->_typeClass;
+            $data = $this->_data[$offset][$this->_type];
             $this->_items[$offset] = new $class(
                 $this->_client,
                 $data['project_id'],
-                $data['number'],
+                isset($data['id']) ? $data['id'] : $data['number'],
                 $data
             );
             return $this->_items[$offset];
