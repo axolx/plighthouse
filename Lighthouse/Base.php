@@ -14,6 +14,8 @@ class Base
 
     protected $_data;
 
+    protected $_new = false;
+
     public $started = false;
 
     public function __construct(Client $client)
@@ -21,9 +23,14 @@ class Base
         $this->_client = $client;
     }
 
-    public function __set($var, $val)
+    public function __set($name, $val)
     {
-        throw new Exception('This is a read-only object');
+        $method = 'set' . ucfirst($name);
+        if (method_exists($this, $method)) {
+            return $this->$method($val);
+        } else {
+            throw new Exception('This is a read-only object');
+        }
     }
 
     public function __get($name)
@@ -36,7 +43,7 @@ class Base
             $this->init();
         }
         if (isset($this->_data[$name])) {
-            return (string) $this->_data[$name];
+            return $this->_data[$name];
         } else {
             throw new Exception('Accessing undefined property ' . $name);
         }
@@ -51,5 +58,7 @@ class Base
             $this->started = true;
         }
     }
+
+
 
 }

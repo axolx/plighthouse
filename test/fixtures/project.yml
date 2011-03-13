@@ -1,0 +1,16 @@
+--- # Test LH project 
+name      : The Office 
+date      : 2001-01-23
+milestones: 
+    - title  : Milestone 1
+      goals  : First working prototype
+      tickets: 
+          - title: Get project by id
+          - title: Get milestones by project id 
+          - title: Get tickets by project id
+          - title: Update ticket status
+          - title: Update ticket milestone
+    - title  : Milestone 2
+      goals  : Nice to haves 
+      tickets: 
+          - title: Command line client

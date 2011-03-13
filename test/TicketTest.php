@@ -1,9 +1,5 @@
 <?php
 
-require_once realpath(dirname(__FILE__)) . '/../Lighthouse/Client.php';
-
-$GLOBALS['conf'] = (object) parse_ini_file('test/fixtures/lh-account.ini');
-
 class TicketTest extends PHPUnit_Framework_TestCase
 {
 

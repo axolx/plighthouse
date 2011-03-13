@@ -1,0 +1,5 @@
+<phpunit colors="true" bootstrap="TestHelper.php" verbose="true">
+    <testsuite name="All Tests">
+        <directory>./</directory>
+    </testsuite>
+</phpunit>

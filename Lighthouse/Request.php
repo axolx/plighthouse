@@ -4,33 +4,74 @@ namespace Lighthouse;
 
 class Request
 {
-    private $_token;
-    private $_response;
+    protected $_token;
+    protected $_response;
+    protected $_body;
+    protected $_curlHandle;
 
     public function __construct($token)
     {
         $this->_token = $token;
+        $this->_curlHandle = $token;
     }
 
-    public function send($url)
+    public function send($method, $url)
     {
-        $ch = curl_init($url);
-        //curl_setopt($this->request, CURLOPT_HEADER, 0);
-        //curl_setopt($this->request, CURLOPT_POST, 1);
-        //curl_setopt($this->request, CURLOPT_RETURNTRANSFER, 1);
+        $this->_curlHandle = $ch = curl_init($url);
+        //curl_setopt($ch,CURLOPT_VERBOSE, 1);
+        if ($method == 'POST') {
+            $this->sendPost($ch);
+        } else if ($method == 'GET') {
+            $this->sendGet();
+        } else if ($method == 'DELETE') {
+            $this->sendDelete();
+        }
         // should curl return or print the data? true = return, false = print
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $lhToken = "X-LighthouseToken: " . $this->_token . "\r\n";
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array( $lhToken));
         $output = curl_exec($ch);
-        curl_close($ch);
         $this->setResponse($output);
+        curl_close($ch);
         return $this->getResponse();
     }
 
-    private function setResponse($output)
+    protected function sendGet()
     {
-        $this->_response =  new Response($output);
+        $lhToken = "X-LighthouseToken: " . $this->_token . "\r\n";
+        curl_setopt($this->_curlHandle, CURLOPT_HTTPHEADER, array( $lhToken));
+    }
+
+    protected function sendPost()
+    {
+        $xml = "<project><name>FooBarBax</name><open-states>new/f17\n foo/aaa</open-states></project>";
+        $lhToken = "X-LighthouseToken: " . $this->_token . "\r\n";
+        curl_setopt($this->_curlHandle, CURLOPT_SSLVERSION, 3);
+        curl_setopt($this->_curlHandle, CURLOPT_POST, 1);
+        curl_setopt($this->_curlHandle, CURLOPT_HTTPHEADER, array( $lhToken));
+        curl_setopt($this->_curlHandle, CURLOPT_POSTFIELDS, $this->_body);
+        $lhToken = "X-LighthouseToken: " . $this->_token;
+        curl_setopt(
+            $this->_curlHandle, CURLOPT_HTTPHEADER, array(
+                $lhToken,
+                'Content-Type: application/json',
+            )
+        );
+    }
+
+    protected function sendDelete()
+    {
+        $lhToken = "X-LighthouseToken: " . $this->_token . "\r\n";
+        curl_setopt($this->_curlHandle, CURLOPT_HTTPHEADER, array( $lhToken));
+        curl_setopt($this->_curlHandle, CURLOPT_CUSTOMREQUEST, 'DELETE');
+    }
+
+    protected function setResponse($output)
+    {
+        $this->_response =  new Response($this->_curlHandle, $output);
+    }
+
+    public function setBody($body)
+    {
+        $this->_body =  $body;
     }
 
 

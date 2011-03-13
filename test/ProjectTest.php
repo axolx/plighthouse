@@ -1,21 +1,28 @@
 <?php
 
-require_once realpath(dirname(__FILE__)) . '/../Lighthouse/Client.php';
-
-$GLOBALS['conf'] = (object) parse_ini_file('test/fixtures/lh-account.ini');
-
 class ProjectTest extends PHPUnit_Framework_TestCase
 {
 
+    protected $_fixture;
     protected $_client;
 
     public function setup()
     {
 
+        $this->_fixture = getFixture();
+
         $this->_client = new \Lighthouse\Client(
             $GLOBALS['conf']->subdomain,
             $GLOBALS['conf']->api
         );
+    }
+
+    public function testCreateProject() {
+        $p = new Lighthouse\Project($this->_client);
+        $p->name = "Foo";
+        $p->save();
+        $this->assertInternalType('integer', $p->id);
+        $this->assertTrue($p->delete());
     }
 
     public function testCanGetAndProperty()
@@ -37,27 +44,17 @@ class ProjectTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->_client->apiCalls, 1);
     }
 
-    /**
-     * @expectedException \Lighthouse\Exception
-     */
-    public function testSetPropertyThrowsException()
-    {
-        $project = $this->_client->getProject($GLOBALS['conf']->project_id);
-        $project->name = "Foo";
-        $this->assertEquals($this->_client->apiCalls, 1);
-    }
-
     public function testGetTickets()
     {
         $project = $this->_client->getProject($GLOBALS['conf']->project_id);
         $this->assertEquals(
             count($project->tickets),
-            $GLOBALS['conf']->project_tickets_total
+            (int) $GLOBALS['conf']->project_tickets_total
         );
         $this->assertEquals($this->_client->apiCalls, 1);
         $this->assertEquals(
             count($project->getTickets('state:new')),
-            $GLOBALS['conf']->project_tickets_new
+            (int) $GLOBALS['conf']->project_tickets_new
         );
         $this->assertEquals($this->_client->apiCalls, 2);
     }

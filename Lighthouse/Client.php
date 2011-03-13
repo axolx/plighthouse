@@ -31,7 +31,7 @@ class Client
     public function __construct($realm, $apiToken)
     {
         $this->_token = ($apiToken);
-        $this->_baseUrl = "http://" . $realm . ".lighthouseapp.com";
+        $this->_baseUrl = "https://" . $realm . ".lighthouseapp.com";
     }
 
     /**
@@ -47,22 +47,29 @@ class Client
         $this->_limit = $int;
     }
 
-    public function sendRequest($method, $url, $query = null)
+    public function sendRequest($method, $url, $data = null)
     {
-        $url = $this->_baseUrl . '/' . $url;
-        $qString['limit'] = $this->_limit;
-        if ($query) {
-            $qString['q'] = $query;
-        }
-        $url .= '?' . http_build_query($qString);
-        $this->_request = new \Lighthouse\Request($this->_token);
         ++$this->apiCalls;
-        return $this->_request->send($url);
+        $url = $this->_baseUrl . '/' . $url;
+        $this->_request = new \Lighthouse\Request($this->_token);
+        if (in_array($method, array('GET', 'DELETE'))) {
+            $qString['limit'] = $this->_limit;
+            if ($data) {
+                $qString = array_merge($qString, $data);
+            }
+            $url .= '?' . http_build_query($qString);
+            return $this->_request->send($method, $url);
+        } else if ($method == 'POST') {
+            $this->_request->setBody($data);
+            return $this->_request->send('POST', $url);
+        } else {
+            throw new Exception('Unsuported request method: ' . $method);
+        }
     }
 
     public function search($query)
     {
-        $resp = $this->sendRequest('GET', 'tickets.json', $query);
+        $resp = $this->sendRequest('GET', 'tickets.json', array('q' => $query));
         return new \Lighthouse\Collection($this, $resp);
     }
 
