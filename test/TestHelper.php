@@ -1,6 +1,7 @@
 <?php
 
 require_once realpath(dirname(__FILE__)) . '/../Lighthouse/Client.php';
+require_once 'plTest.php';
 
 $GLOBALS['conf'] = (object) parse_ini_file('fixtures/lh-account.ini');
 
@@ -35,6 +36,20 @@ function createTestMilestone($pid)
     $m = new Lighthouse\Milestone($c, $pid);
     $m->title = $fx['milestones'][0]['title'];
     return $m->save();
+
+}
+
+/**
+* @param int The project id
+* @return int The milestone id
+*/
+function createTestTicket($pid)
+{
+    $fx = getFixture();
+    $c = \Lighthouse\Client::getInstance();
+    $t = new Lighthouse\Ticket($c, $pid);
+    $t->title = $fx['milestones'][0]['tickets'][0]['title'];
+    return $t->save();
 
 }
 

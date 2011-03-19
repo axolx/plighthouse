@@ -1,24 +1,7 @@
 <?php
 
-class ProjectTest extends PHPUnit_Framework_TestCase
+class ProjectTest extends plTest
 {
-
-    protected $_fixture;
-    protected $_client;
-
-    public function setup()
-    {
-        $this->_fixture = getFixture();
-        $pid = createTestProject();
-        $this->_client = \Lighthouse\Client::getInstance();
-        $this->_proj = $this->_client->getProject($pid);
-        $this->_client->apiCalls = 0;
-    }
-
-    public function tearDown()
-    {
-        $this->_proj->delete();
-    }
 
     public function testCreateProject()
     {

@@ -1,27 +1,9 @@
 <?php
 
-class MilestoneTest extends PHPUnit_Framework_TestCase
+class MilestoneTest extends plTest
 {
 
-    protected $_client;
-    protected $_proj;
-    protected $_fixture;
-
-    public function setUp()
-    {
-        $pid = createTestProject();
-        $this->_client = \Lighthouse\Client::getInstance();
-        $this->_proj = $this->_client->getProject($pid);
-        $this->_fixture = getFixture();
-        $this->_client->apiCalls = 0;
-    }
-
-    public function tearDown()
-    {
-        $this->_proj->delete();
-    }
-
-    public function testCanCreateMilestone()
+    public function testCanCreate()
     {
         $this->assertEquals(0, $this->_client->apiCalls);
         $mid = createTestMilestone($this->_proj->id);
