@@ -14,7 +14,7 @@ class Base
 
     protected $_data;
 
-    protected $_new = false;
+    public $new = false;
 
     public $started = false;
 
@@ -45,7 +45,7 @@ class Base
             return $this->$method();
         }
 
-        if ($this->_data === null && !$this->_new) {
+        if ($this->_data === null && !$this->new) {
             $this->init();
         }
         if (isset($this->_data[$name])) {

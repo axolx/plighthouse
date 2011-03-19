@@ -29,11 +29,13 @@ class ProjectTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($p->delete());
     }
 
-    public function testCanGetAndProperty()
+    public function testGetValidPropertyTriggersDataFetch()
     {
-        $this->assertFalse($this->_proj->started);
-        $this->assertEquals($this->_fixture['name'], $this->_proj->name);
-        $this->assertTrue($this->_proj->started);
+        $item = new Lighthouse\Project($this->_client, $this->_proj->id);
+        $this->assertFalse($item->new);
+        $this->assertFalse($item->started);
+        $this->assertEquals($this->_fixture['name'], $item->name);
+        $this->assertTrue($item->started);
         $this->assertEquals(1, $this->_client->apiCalls);
     }
 

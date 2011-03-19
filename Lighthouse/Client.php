@@ -16,8 +16,8 @@ class Client
 
     static $token;
     static $realm;
+    static $debug = false;
 
-    public $debug = false;
     protected $_token;
     protected $_baseUrl;
     protected $_request;
@@ -62,7 +62,7 @@ class Client
 
     public function sendRequest($method, $url, $data = null)
     {
-        if($this->debug) {
+        if(self::$debug) {
             printf("Counter is %d. Calling: %s %s \n", $this->apiCalls, $method, $url);
         }
         ++$this->apiCalls;

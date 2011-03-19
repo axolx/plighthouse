@@ -11,7 +11,7 @@ class Project extends Base
         if ($id) {
             $this->_id = (int) $id;
         } else {
-            $this->_new = true;
+            $this->new = true;
         }
     }
 

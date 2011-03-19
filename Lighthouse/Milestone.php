@@ -15,7 +15,7 @@ class Milestone extends Base
         if($id) {
             $this->_id = (int) $id;
         } else {
-            $this->_new = true;
+            $this->new = true;
         }
         parent::__construct($client);
         $this->_projId = (int) $projId;
