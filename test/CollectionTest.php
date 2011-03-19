@@ -1,5 +1,6 @@
 <?php
 
+/**
 class CollectionTest extends PHPUnit_Framework_TestCase
 {
 
@@ -36,4 +37,4 @@ class CollectionTest extends PHPUnit_Framework_TestCase
     }
 
 }
-
+**/

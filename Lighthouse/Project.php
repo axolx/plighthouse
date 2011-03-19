@@ -9,7 +9,7 @@ class Project extends Base
     {
         parent::__construct($client);
         if ($id) {
-            $this->_id = $id;
+            $this->_id = (int) $id;
         } else {
             $this->_new = true;
         }
@@ -41,19 +41,15 @@ class Project extends Base
         return new \Lighthouse\Collection($this->_client, $resp);
     }
 
-    public function save()
+    public function save($url = null)
     {
         $url = sprintf("projects.json");
-        $resp = $this->_client->sendRequest(
-            'POST', $url, json_encode(array('project' => $this->_data))
-        );
-        $this->_id = $this->_data['id'] = (int) $resp->parsedOutput['project']['id'];
-        return $this->_id;
+        return parent::save($url);
     }
 
     public function delete()
     {
-        $url = sprintf("projects/%s.json", $this->_id);
+        $url = sprintf("projects/%s.json", $this->id);
         $resp = $this->_client->sendRequest('DELETE', $url);
         return (bool) $resp->status == 200;
     }

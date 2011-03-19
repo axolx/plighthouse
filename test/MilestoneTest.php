@@ -5,30 +5,45 @@ class MilestoneTest extends PHPUnit_Framework_TestCase
 
     protected $_client;
     protected $_proj;
-    protected $_milestone;
+    protected $_fixture;
 
-    public function setup()
+    public function setUp()
     {
-        $this->_client = new \Lighthouse\Client(
-            $GLOBALS['conf']->subdomain,
-            $GLOBALS['conf']->api
-        );
-        $this->_proj = $this->_client->getProject($GLOBALS['conf']->project_id);
-        $milestones = $this->_proj->getMilestones();
-        $this->_milestone = $milestones[0];
+        $pid = createTestProject();
+        $this->_client = \Lighthouse\Client::getInstance();
+        $this->_proj = $this->_client->getProject($pid);
+        $this->_fixture = getFixture();
     }
 
-    public function testClass()
+    /**
+     * @access protected
+     * @return int The milestone id
+     */
+    protected function createMilestone() {
+        $m = new Lighthouse\Milestone($this->_client, $this->_proj->id);
+        $m->title = $this->_fixture['milestones'][0]['title'];
+        return $m->save();
+
+    }
+
+    public function tearDown()
     {
-        $this->assertInstanceOf('\Lighthouse\Milestone', $this->_milestone);
+        $this->_proj->delete();
+    }
+
+    public function testCanCreateMilestone()
+    {
+        $this->assertEquals(0, $this->_client->apiCalls);
+        $mid = $this->createMilestone();
+        $this->assertInternalType('integer', $mid);
+        $this->assertEquals(1, $this->_client->apiCalls);
     }
 
     public function testCanGetAndProperty()
     {
-        $this->assertEquals($this->_client->apiCalls, 1);
-        $this->assertTrue($this->_milestone->started);
-        $this->assertEquals($GLOBALS['conf']->milestone_title, $this->_milestone->title);
-        $this->assertEquals($this->_client->apiCalls, 1);
+        $this->assertEquals(0, $this->_client->apiCalls);
+        $mid = $this->createMilestone();
+        $this->assertEquals(1, $this->_client->apiCalls);
     }
 
     /**
@@ -36,15 +51,9 @@ class MilestoneTest extends PHPUnit_Framework_TestCase
      */
     public function testAccessUndefinedPopertyThrowsException()
     {
-        $this->_milestone->foo;
+        $m = new Lighthouse\Milestone($this->_client, $this->_proj->id);
+        $m->foo;
     }
 
-    /**
-     * @expectedException \Lighthouse\Exception
-     */
-    public function testSetPropertyThrowsException()
-    {
-        $this->_milestone->title = "Foo";
-    }
 }
 

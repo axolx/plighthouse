@@ -14,6 +14,10 @@ require_once 'Ticket.php';
 class Client
 {
 
+    static $token;
+    static $realm;
+
+    public $debug = false;
     protected $_token;
     protected $_baseUrl;
     protected $_request;
@@ -28,7 +32,7 @@ class Client
      */
     protected $_limit = 30;
 
-    public function __construct($realm, $apiToken)
+    protected function __construct($realm, $apiToken)
     {
         $this->_token = ($apiToken);
         $this->_baseUrl = "https://" . $realm . ".lighthouseapp.com";
@@ -42,6 +46,15 @@ class Client
         return new \Lighthouse\Project($this, $id);
     }
 
+    /**
+     * @param int $pid The Lighthouse project id
+     * @param int $mid The Lighthouse milestone id
+     */
+    public function getMilestone($pid, $mid)
+    {
+        return new \Lighthouse\Milestone($this, $pid, $mid);
+    }
+
     public function setLimit($int)
     {
         $this->_limit = $int;
@@ -49,6 +62,9 @@ class Client
 
     public function sendRequest($method, $url, $data = null)
     {
+        if($this->debug) {
+            printf("Counter is %d. Calling: %s %s \n", $this->apiCalls, $method, $url);
+        }
         ++$this->apiCalls;
         $url = $this->_baseUrl . '/' . $url;
         $this->_request = new \Lighthouse\Request($this->_token);
@@ -73,4 +89,17 @@ class Client
         return new \Lighthouse\Collection($this, $resp);
     }
 
+    final public static function getInstance() {
+        static $instance;
+
+        if (!isset($instance)) {
+            $instance = new self(self::$realm, self::$token);
+        }
+
+        return $instance;
+    }
+
+    final private function __clone() {
+        throw new Exception('Can\'t clone the Client');
+    }
 }

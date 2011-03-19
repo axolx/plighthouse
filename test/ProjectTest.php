@@ -8,18 +8,21 @@ class ProjectTest extends PHPUnit_Framework_TestCase
 
     public function setup()
     {
-
         $this->_fixture = getFixture();
-
-        $this->_client = new \Lighthouse\Client(
-            $GLOBALS['conf']->subdomain,
-            $GLOBALS['conf']->api
-        );
+        $pid = createTestProject();
+        $this->_client = \Lighthouse\Client::getInstance();
+        $this->_proj = $this->_client->getProject($pid);
     }
 
-    public function testCreateProject() {
+    public function tearDown()
+    {
+        $this->_proj->delete();
+    }
+
+    public function testCreateProject()
+    {
         $p = new Lighthouse\Project($this->_client);
-        $p->name = "Foo";
+        $p->name = $this->_fixture['name'];
         $p->save();
         $this->assertInternalType('integer', $p->id);
         $this->assertTrue($p->delete());
@@ -27,11 +30,10 @@ class ProjectTest extends PHPUnit_Framework_TestCase
 
     public function testCanGetAndProperty()
     {
-        $project = $this->_client->getProject($GLOBALS['conf']->project_id);
-        $this->assertFalse($project->started);
-        $this->assertEquals($project->name, $GLOBALS['conf']->project_name);
-        $this->assertTrue($project->started);
-        $this->assertEquals($this->_client->apiCalls, 1);
+        $this->assertFalse($this->_proj->started);
+        $this->assertEquals($this->_fixture['name'], $this->_proj->name);
+        $this->assertTrue($this->_proj->started);
+        $this->assertEquals(1, $this->_client->apiCalls);
     }
 
     /**
@@ -39,8 +41,7 @@ class ProjectTest extends PHPUnit_Framework_TestCase
      */
     public function testAccessUndefinedPopertyThrowsException()
     {
-        $project = $this->_client->getProject($GLOBALS['conf']->project_id);
-        $project->foo;
+        $this->_proj->foo;
         $this->assertEquals($this->_client->apiCalls, 1);
     }
 
@@ -51,12 +52,12 @@ class ProjectTest extends PHPUnit_Framework_TestCase
             count($project->tickets),
             (int) $GLOBALS['conf']->project_tickets_total
         );
-        $this->assertEquals($this->_client->apiCalls, 1);
+        $this->assertEquals(1, $this->_client->apiCalls);
         $this->assertEquals(
             count($project->getTickets('state:new')),
             (int) $GLOBALS['conf']->project_tickets_new
         );
-        $this->assertEquals($this->_client->apiCalls, 2);
+        $this->assertEquals(2, $this->_client->apiCalls);
     }
 
     public function testGetMilestones()
@@ -67,9 +68,9 @@ class ProjectTest extends PHPUnit_Framework_TestCase
             count($ms),
             $GLOBALS['conf']->project_milestones
         );
-        $this->assertEquals($this->_client->apiCalls, 1);
+        $this->assertEquals(1, $this->_client->apiCalls);
         $ms[1];
-        $this->assertEquals($this->_client->apiCalls, 1);
+        $this->assertEquals(1, $this->_client->apiCalls);
     }
 
 }

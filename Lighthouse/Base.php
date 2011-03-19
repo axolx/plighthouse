@@ -33,13 +33,19 @@ class Base
         }
     }
 
+    public function getId()
+    {
+        return $this->_id;
+    }
+
     public function __get($name)
     {
         $method = 'get' . ucfirst($name);
         if (method_exists($this, $method)) {
             return $this->$method();
         }
-        if ($this->_data === null) {
+
+        if ($this->_data === null && !$this->_new) {
             $this->init();
         }
         if (isset($this->_data[$name])) {
@@ -60,5 +66,14 @@ class Base
     }
 
 
+    public function save($url = null)
+    {
+        $type = strtolower(str_replace('Lighthouse\\', '', get_class($this)));
+        $data = array($type => $this->_data);
+        $resp = $this->_client->sendRequest('POST', $url, json_encode($data));
+        $this->_id = $this->_data['id'] = (int) $resp->parsedOutput[$type]['id'];
+        $this->started = true;
+        return $this->_id;
+    }
 
 }
