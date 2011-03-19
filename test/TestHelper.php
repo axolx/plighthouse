@@ -24,9 +24,6 @@ function createTestProject() {
     $fx = getFixture();
     $p->name = $fx['name'];
     $p->save();
-    // reset the counter for purposes of testing
-    //echo "Resetting API call counter\n";
-    $c->apiCalls = 0;
     return $p->id;
 }
 

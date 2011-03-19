@@ -12,6 +12,7 @@ class ProjectTest extends PHPUnit_Framework_TestCase
         $pid = createTestProject();
         $this->_client = \Lighthouse\Client::getInstance();
         $this->_proj = $this->_client->getProject($pid);
+        $this->_client->apiCalls = 0;
     }
 
     public function tearDown()

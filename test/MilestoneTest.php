@@ -13,6 +13,7 @@ class MilestoneTest extends PHPUnit_Framework_TestCase
         $this->_client = \Lighthouse\Client::getInstance();
         $this->_proj = $this->_client->getProject($pid);
         $this->_fixture = getFixture();
+        $this->_client->apiCalls = 0;
     }
 
     /**
